@@ -66,16 +66,16 @@
       flex-shrink: 0; z-index: 10;
     }
     
-    /* ★ 各分隊の中だけでスクロールさせるグリッド設定 ★ */
+    /* 各分隊の中だけでスクロールさせるグリッド設定 */
     .timer-grid {
       display: grid; 
       grid-template-columns: repeat(5, 1fr); 
-      gap: 10px; /* 上下左右の隙間を10pxで均等に固定 */
+      gap: 10px; 
       padding: 10px;
       overflow-y: auto; 
       flex: 1; 
       scroll-behavior: smooth;
-      align-content: start; /* ★重要: タイマーが縦に伸びるのを防ぎ、上詰めに配置する */
+      align-content: start; 
     }
     
     /* 各タイマーのデザイン（完全な正方形を維持） */
@@ -83,23 +83,35 @@
       position: relative; display: flex; align-items: center; justify-content: center;
       background: #e0e0e0; border-radius: 5px; cursor: pointer; user-select: none;
       box-shadow: 0 2px 2px rgba(0,0,0,0.1); overflow: hidden;
-      aspect-ratio: 1 / 1; /* 横幅に対する高さの比率を1:1で完全固定 */
+      aspect-ratio: 1 / 1; 
     }
     
+    /* ★ 背景の弾数（濃く・大きく調整） ★ */
     .timer::before {
       content: attr(data-num); position: absolute;
       top: 50%; left: 50%; transform: translate(-50%, -50%);
-      font-size: 32px; font-weight: 900; color: rgba(0,0,0,0.08); z-index: 1;
+      font-size: 42px; font-weight: 900; 
+      color: rgba(0,0,0,0.15); /* 0.08から0.15へ濃く */
+      z-index: 1;
     }
     
+    /* ★ 前面の秒数（白いフチ取りを追加して視認性アップ） ★ */
     .timer span {
       position: relative; z-index: 2; font-size: 18px; font-weight: bold;
+      text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.9), 0px 0px 4px rgba(255, 255, 255, 0.9);
     }
     
     .timer.running { background: #fff9c4; border: 1px solid #fbc02d; }
+    
+    /* 終了時と点滅時の設定 */
     .timer.flashing { animation: blink 0.5s infinite alternate; background: #f44336; color: white; }
     .timer.finished { background: #d32f2f; color: white; }
-    .timer.finished::before { color: rgba(255,255,255,0.2); }
+    
+    /* ★ 終了時・点滅時のフチ取りと背景数字の調整 ★ */
+    .timer.finished span, .timer.flashing span {
+      text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.6); /* 白文字に合わせて黒いフチドリに */
+    }
+    .timer.finished::before { color: rgba(255,255,255,0.3); } /* 終了後の透かしも濃く */
     
     @keyframes blink {
       from { background: #f44336; }
@@ -244,11 +256,9 @@
               div.className = 'timer finished';
               state = 'finished';
               
-              // ★自動スクロール: 次のタイマーが見やすい位置（中央）に来るように調整
               const siblings = Array.from(div.parentElement.children);
               const nextActive = siblings.find(t => !t.classList.contains('finished'));
               if (nextActive) {
-                // block: 'center' にすることで、枠内のちょうど中央あたりにスクロールされます
                 nextActive.scrollIntoView({ behavior: 'smooth', block: 'center' });
               }
 
