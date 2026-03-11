@@ -1,4 +1,4 @@
-const CACHE_NAME = 'danchaku-timer-v10';
+const CACHE_NAME = 'danchaku-timer-v11'; // ← ここを v5 に変更
 const urlsToCache = [
   './',
   './index.html',
