@@ -54,7 +54,7 @@
       overflow: hidden;
     }
     
-    /* 各分隊のコンテナ（この中で高さを分け合う） */
+    /* 各分隊のコンテナ */
     .squad-container {
       flex: 1; display: flex; flex-direction: column;
       background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -66,19 +66,24 @@
       flex-shrink: 0; z-index: 10;
     }
     
-    /* ★ 各分隊の中だけでスクロールさせる ★ */
+    /* ★ 各分隊の中だけでスクロールさせるグリッド設定 ★ */
     .timer-grid {
-      display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 10px;
-      overflow-y: auto; flex: 1; scroll-behavior: smooth;
+      display: grid; 
+      grid-template-columns: repeat(5, 1fr); 
+      gap: 10px; /* 上下左右の隙間を10pxで均等に固定 */
+      padding: 10px;
+      overflow-y: auto; 
+      flex: 1; 
+      scroll-behavior: smooth;
+      align-content: start; /* ★重要: タイマーが縦に伸びるのを防ぎ、上詰めに配置する */
     }
     
-    /* 各タイマーのデザイン（正方形を維持） */
+    /* 各タイマーのデザイン（完全な正方形を維持） */
     .timer {
       position: relative; display: flex; align-items: center; justify-content: center;
       background: #e0e0e0; border-radius: 5px; cursor: pointer; user-select: none;
       box-shadow: 0 2px 2px rgba(0,0,0,0.1); overflow: hidden;
-      aspect-ratio: 1 / 1; 
-      min-height: 50px;
+      aspect-ratio: 1 / 1; /* 横幅に対する高さの比率を1:1で完全固定 */
     }
     
     .timer::before {
@@ -239,10 +244,12 @@
               div.className = 'timer finished';
               state = 'finished';
               
-              // 自動スクロール: 各分隊の枠内で、次のタイマーが見える位置にスクロール
-              const nextActive = Array.from(div.parentElement.children).find(t => !t.classList.contains('finished'));
+              // ★自動スクロール: 次のタイマーが見やすい位置（中央）に来るように調整
+              const siblings = Array.from(div.parentElement.children);
+              const nextActive = siblings.find(t => !t.classList.contains('finished'));
               if (nextActive) {
-                nextActive.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                // block: 'center' にすることで、枠内のちょうど中央あたりにスクロールされます
+                nextActive.scrollIntoView({ behavior: 'smooth', block: 'center' });
               }
 
             } else {
