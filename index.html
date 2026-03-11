@@ -6,63 +6,41 @@
   <title>弾着タイマー</title>
   <link rel="manifest" href="./manifest.json">
   <style>
-    /* 全体の設定（スクロールを許可） */
+    /* 共通・ライトモード設定（全体スクロールを禁止し1画面に固定） */
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0; padding: 0;
       background-color: #f4f4f9; color: #333;
-      min-height: 100vh; width: 100vw;
+      height: 100vh; width: 100vw;
       display: flex; flex-direction: column;
       touch-action: manipulation;
+      overflow: hidden; /* 全体のスクロールを禁止 */
     }
     
-    /* ダークモードの配色設定 */
+    /* ダークモードの配色設定（強制的に暗い背景を適用） */
     @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #1a1a1a;
-        color: #f4f4f9;
+      body { background-color: #121212; color: #e0e0e0; }
+      .card, .squad-container { 
+        background-color: #1e1e1e !important; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.5) !important; 
+        color: #e0e0e0 !important; 
       }
-      .card, .squad-container {
-        background: #2a2a2a;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      }
-      .squad-title {
-        background: #3a3a3a;
-        color: #f4f4f9;
-      }
-      .timer {
-        background: #3a3a3a;
-        color: #f4f4f9;
-      }
-      .timer::before {
-        color: rgba(255,255,255,0.2);
-      }
-      .timer.running {
-        background: #fff9c4;
-        border: 1px solid #fbc02d;
-        color: #333;
-      }
-      .timer.finished {
-        background: #d32f2f;
-        color: white;
-      }
-      .timer.finished::before {
-        color: rgba(255,255,255,0.3);
-      }
-      input[type="number"], select {
-        background-color: #3a3a3a;
-        border: 1px solid #555;
-        color: #f4f4f9;
-      }
-      #reset-btn-container {
-        background: #1a1a1a;
-        border-top: 1px solid #555;
-      }
+      .squad-title { background-color: #2c2c2c !important; color: #e0e0e0 !important; }
+      .timer { background-color: #333 !important; color: #e0e0e0 !important; }
+      .timer::before { color: rgba(255,255,255,0.15) !important; }
+      
+      /* タイマー作動中の色味調整 */
+      .timer.running { background-color: #5c5311 !important; border: 1px solid #fbc02d !important; color: #fff !important; }
+      .timer.finished { background-color: #b71c1c !important; color: white !important; }
+      .timer.finished::before { color: rgba(255,255,255,0.3) !important; }
+      
+      select, input { background-color: #2c2c2c !important; border: 1px solid #444 !important; color: #e0e0e0 !important; }
+      #reset-btn-container { background-color: #121212 !important; border-top: 1px solid #333 !important; }
     }
     
     /* 設定画面 */
     #setup-section {
-      padding: 20px; box-sizing: border-box;
+      height: 100%; overflow-y: auto; padding: 20px; box-sizing: border-box;
     }
     h1 { font-size: 24px; text-align: center; margin-top: 0; }
     .card {
@@ -70,82 +48,73 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px;
     }
     label { display: block; font-weight: bold; margin-bottom: 5px; margin-top: 15px; }
-    
     select {
       width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc;
-      border-radius: 5px; background-color: #f9f9f9; box-sizing: border-box;
+      border-radius: 5px; background-color: #f9f9f9; box-sizing: border-box; color: #333;
     }
-    
     button {
       background: #0056b3; color: white; border: none; padding: 12px 20px;
       font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%;
     }
     button:active { background: #004494; }
     #generate-btn { margin-top: 25px; padding: 15px; font-size: 18px; }
-    
     #squad-configs { margin-top: 15px; padding-left: 10px; border-left: 3px solid #0056b3; }
     
-    /* タイマー画面 (画面全体をスクロール可能に) */
+    /* タイマー画面（1画面に収める） */
     #timer-section {
-      display: none; flex-direction: column;
-      flex: 1; /* 残りの高さを埋める */
-      box-sizing: border-box;
+      height: 100%; display: none; flex-direction: column;
+      box-sizing: border-box; overflow: hidden;
     }
     #squads-wrapper {
-      flex: 1; /* 残りの高さを埋める */
-      overflow-y: auto; padding: 10px; scroll-behavior: smooth;
+      flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 10px;
+      overflow: hidden;
     }
+    
+    /* 各分隊の枠 */
     .squad-container {
+      flex: 1; display: flex; flex-direction: column;
       background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      border-left: 5px solid #4CAF50; margin-bottom: 20px;
-      position: relative;
+      border-left: 5px solid #4CAF50; overflow: hidden; min-height: 0;
     }
     .squad-title {
-      font-weight: bold; font-size: 16px; padding: 8px 10px; background: #eee;
-      position: sticky; top: 0; z-index: 10;
+      font-weight: bold; font-size: 14px; padding: 6px 10px; background: #eee;
+      flex-shrink: 0; z-index: 10;
     }
     
-    /* 5列のグリッドレイアウトに変更し、潰れないようにする */
+    /* ★各分隊の中だけでスクロール★ */
     .timer-grid {
       display: grid; grid-template-columns: repeat(5, 1fr); 
-      gap: 10px; /* 上下左右の隙間を10pxで均等に設定 */
-      padding: 10px;
-      align-content: start; /* タイマーが縦に伸びるのを防ぐ */
+      gap: 10px; padding: 10px;
+      overflow-y: auto; flex: 1; scroll-behavior: smooth;
+      align-content: start; /* 縦伸びを防ぐ */
     }
     
-    /* 各タイマーのデザイン（正方形を維持） */
+    /* タイマーボタンの形状（正方形固定） */
     .timer {
       position: relative; display: flex; align-items: center; justify-content: center;
       background: #e0e0e0; border-radius: 5px; cursor: pointer; user-select: none;
       box-shadow: 0 2px 2px rgba(0,0,0,0.1); overflow: hidden;
-      aspect-ratio: 1 / 1; /* 正方形にする */
-      min-height: 60px;
+      aspect-ratio: 1 / 1;
     }
-    
-    /* 背景の弾数（透かし文字） */
     .timer::before {
       content: attr(data-num); position: absolute;
       top: 50%; left: 50%; transform: translate(-50%, -50%);
-      font-size: 40px; font-weight: 900; 
-      color: rgba(0,0,0,0.15); /* 少し濃く調整 */
-      z-index: 1;
+      font-size: 32px; font-weight: 900; 
+      color: rgba(0,0,0,0.15); z-index: 1;
     }
     
-    /* 前面の秒数（白いフチ取りを追加） */
+    /* 文字のフチ取り */
     .timer span {
-      position: relative; z-index: 2; font-size: 20px; font-weight: bold;
-      text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.9);
+      position: relative; z-index: 2; font-size: 18px; font-weight: bold;
+      text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.9), 0px 0px 4px rgba(255, 255, 255, 0.9);
     }
-    
     .timer.running { background: #fff9c4; border: 1px solid #fbc02d; color: #333; }
     .timer.flashing { animation: blink 0.5s infinite alternate; background: #f44336; color: white; }
     .timer.finished { background: #d32f2f; color: white; }
-    
-    /* 終了時と点滅時のフチ取りと背景数字の調整 */
     .timer.finished span, .timer.flashing span {
       text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.6);
     }
-    .timer.finished::before { color: rgba(255,255,255,0.3); } /* 終了後の透かしも濃く */
+    .timer.finished::before { color: rgba(255,255,255,0.3); }
     
     @keyframes blink {
       from { background: #f44336; }
@@ -289,11 +258,9 @@
               div.className = 'timer finished';
               state = 'finished';
               
-              // 自動スクロール: 次のタイマーが見やすい位置（中央）に来るように調整
               const siblings = Array.from(div.parentElement.children);
               const nextActive = siblings.find(t => !t.classList.contains('finished'));
               if (nextActive) {
-                // block: 'center' にすることで、枠内のちょうど中央あたりにスクロールされます
                 nextActive.scrollIntoView({ behavior: 'smooth', block: 'center' });
               }
 
