@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>弾着タイマー</title>
-  <link rel="manifest" href="./manifest.json">
+  <link rel="manifest" href="./manifest.json?v=2">
   <style>
     /* 🎨 カラー定義（一括管理） */
     :root {
@@ -14,7 +14,6 @@
       --card-shadow: rgba(0,0,0,0.1);
       --squad-title-bg: #eee;
       --timer-bg: #e0e0e0;
-      /* ★ ライトモードの透かし文字を濃く（0.15 → 0.25） */
       --timer-watermark: rgba(0,0,0,0.25);
       --timer-text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.9), 0px 0px 4px rgba(255, 255, 255, 0.9);
       --input-bg: #f9f9f9;
@@ -34,7 +33,6 @@
         --card-shadow: rgba(0,0,0,0.5);
         --squad-title-bg: #2c2c2c;
         --timer-bg: #333;
-        /* ★ ダークモードの透かし文字を濃く（0.15 → 0.3） */
         --timer-watermark: rgba(255,255,255,0.3);
         --timer-text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
         --input-bg: #2c2c2c;
@@ -84,17 +82,16 @@
       box-sizing: border-box; overflow: hidden;
     }
 
-    /* ★ 経過時間表示用コンテナ */
     #global-timer-container {
       background-color: var(--card-bg);
-      margin: 10px 10px 0 10px; /* 上左右に余白 */
+      margin: 10px 10px 0 10px; 
       padding: 12px;
       border-radius: 8px;
       box-shadow: 0 2px 4px var(--card-shadow);
       text-align: center;
       font-size: 22px;
       font-weight: bold;
-      border-left: 5px solid #0056b3; /* 青いアクセント */
+      border-left: 5px solid #0056b3;
       flex-shrink: 0;
     }
 
@@ -134,10 +131,14 @@
       box-sizing: border-box;
       border: 1px solid transparent; 
     }
+    
+    /* ★ 背景の弾数を枠ギリギリまで最大化 ★ */
     .timer::before {
       content: attr(data-num); position: absolute;
       top: 50%; left: 50%; transform: translate(-50%, -50%);
-      font-size: 32px; font-weight: 900; 
+      font-size: min(13vw, 55px); /* 画面サイズに合わせて最大化、限界は55px */
+      line-height: 1; /* 行の高さを詰めてズレを防止 */
+      font-weight: 900; 
       color: var(--timer-watermark); z-index: 1;
     }
     
@@ -162,7 +163,7 @@
     .timer.finished span, .timer.flashing span {
       text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.6);
     }
-    .timer.finished::before { color: rgba(255,255,255,0.4); } /* 終了後の透かしも少し濃く */
+    .timer.finished::before { color: rgba(255,255,255,0.4); } 
     
     @keyframes blink {
       from { background-color: #f44336; }
@@ -210,7 +211,6 @@
       navigator.serviceWorker.register('./sw.js').catch(() => {});
     }
 
-    // ★ 全体経過時間用の変数
     let globalStartTime = null;
     let globalInterval = null;
 
@@ -250,7 +250,6 @@
     updateSquadConfigs();
 
     function generateApp() {
-      // 画面遷移時に経過時間タイマーをリセット
       clearInterval(globalInterval);
       globalStartTime = null;
       document.getElementById('global-timer-display').textContent = '00:00';
@@ -305,7 +304,6 @@
         const tapLength = currentTime - lastTap;
         lastTap = currentTime;
 
-        // ダブルタップでリセット
         if (tapLength < 300 && tapLength > 0) {
           clearInterval(interval);
           state = 'idle';
@@ -314,13 +312,11 @@
           return;
         }
 
-        // スタート
         if (state === 'idle') {
           state = 'running';
           div.classList.add('running');
           const endTime = Date.now() + duration * 1000;
 
-          // ★ 全体経過時間タイマーのスタート（初回のみ）
           if (globalStartTime === null) {
             globalStartTime = Date.now();
             globalInterval = setInterval(() => {
@@ -329,7 +325,7 @@
               const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
               const seconds = String(totalSeconds % 60).padStart(2, '0');
               document.getElementById('global-timer-display').textContent = `${minutes}:${seconds}`;
-            }, 200); // 0.2秒ごとに更新
+            }, 200);
           }
 
           interval = setInterval(() => {
@@ -362,7 +358,6 @@
     }
 
     function resetApp() {
-      // 経過時間タイマーを停止・初期化
       clearInterval(globalInterval);
       globalStartTime = null;
       document.getElementById('global-timer-display').textContent = '00:00';
