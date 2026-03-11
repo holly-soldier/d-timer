@@ -1,4 +1,4 @@
-const CACHE_NAME = 'danchaku-timer-v8'; // バージョン名（変更すると強制更新のトリガーになります）
+const CACHE_NAME = 'danchaku-timer-v9'; // バージョン名（変更すると強制更新のトリガーになります）
 const urlsToCache = [
   './',
   './index.html',
