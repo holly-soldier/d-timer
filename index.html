@@ -6,13 +6,13 @@
   <title>弾着タイマー</title>
   <link rel="manifest" href="./manifest.json">
   <style>
-    /* 全体のスクロールをなくし、1画面に収める */
+    /* 全体の設定 */
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0; padding: 0;
       background-color: #f4f4f9; color: #333;
       height: 100vh; width: 100vw;
-      overflow: hidden; display: flex; flex-direction: column;
+      display: flex; flex-direction: column;
       touch-action: manipulation; /* ダブルタップズームを防止 */
     }
     
@@ -27,7 +27,6 @@
     }
     label { display: block; font-weight: bold; margin-bottom: 5px; margin-top: 15px; }
     
-    /* セレクトボックス（スクロール選択）のデザイン */
     select {
       width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc;
       border-radius: 5px; background-color: #f9f9f9; box-sizing: border-box;
@@ -42,43 +41,47 @@
     
     #squad-configs { margin-top: 15px; padding-left: 10px; border-left: 3px solid #0056b3; }
     
-    /* タイマー画面 (1画面フィット) */
+    /* タイマー画面 (スクロール可能に変更) */
     #timer-section {
       height: 100%; display: none; flex-direction: column;
-      padding: 10px; box-sizing: border-box;
+      box-sizing: border-box;
     }
     #squads-wrapper {
-      flex: 1; display: flex; flex-direction: column; gap: 8px; overflow: hidden;
+      flex: 1; overflow-y: auto; padding: 10px; scroll-behavior: smooth;
     }
     .squad-container {
-      flex: 1; display: flex; flex-direction: column; background: #fff;
-      border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      border-left: 5px solid #4CAF50; overflow: hidden;
+      background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-left: 5px solid #4CAF50; margin-bottom: 20px;
     }
     .squad-title {
-      font-weight: bold; font-size: 14px; padding: 4px 10px; background: #eee;
-    }
-    .timer-grid {
-      flex: 1; display: flex; gap: 5px; padding: 5px;
+      font-weight: bold; font-size: 16px; padding: 8px 10px; background: #eee;
+      position: sticky; top: 0; z-index: 10; /* スクロールしても分隊名は上に残るように */
     }
     
-    /* 各タイマーのデザイン */
+    /* 5列のグリッドレイアウトに変更し、潰れないようにする */
+    .timer-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 10px;
+    }
+    
+    /* 各タイマーのデザイン（正方形を維持） */
     .timer {
-      flex: 1; position: relative; display: flex; align-items: center; justify-content: center;
+      position: relative; display: flex; align-items: center; justify-content: center;
       background: #e0e0e0; border-radius: 5px; cursor: pointer; user-select: none;
       box-shadow: 0 2px 2px rgba(0,0,0,0.1); overflow: hidden;
+      aspect-ratio: 1 / 1; /* 正方形にする */
+      min-height: 60px;
     }
     
     /* 背景の弾数（透かし文字） */
     .timer::before {
       content: attr(data-num); position: absolute;
       top: 50%; left: 50%; transform: translate(-50%, -50%);
-      font-size: 8vh; font-weight: 900; color: rgba(0,0,0,0.08); z-index: 1;
+      font-size: 40px; font-weight: 900; color: rgba(0,0,0,0.08); z-index: 1;
     }
     
     /* 前面の秒数 */
     .timer span {
-      position: relative; z-index: 2; font-size: 4vh; font-weight: bold;
+      position: relative; z-index: 2; font-size: 20px; font-weight: bold;
     }
     
     /* タイマーの状態カラー */
@@ -91,7 +94,9 @@
       from { background: #f44336; }
       to { background: #ffcdd2; color: #d32f2f; }
     }
-    #reset-btn { margin-top: 10px; background: #555; padding: 10px; }
+    
+    #reset-btn-container { padding: 10px; background: #fff; border-top: 1px solid #ccc; }
+    #reset-btn { background: #555; padding: 12px; }
   </style>
 </head>
 <body>
@@ -113,16 +118,16 @@
 
   <div id="timer-section">
     <div id="squads-wrapper"></div>
-    <button id="reset-btn" onclick="resetApp()">設定に戻る</button>
+    <div id="reset-btn-container">
+      <button id="reset-btn" onclick="resetApp()">設定に戻る</button>
+    </div>
   </div>
 
   <script>
-    // サービスワーカー登録
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js').catch(() => {});
     }
 
-    // セレクトボックスの選択肢を生成する関数
     function populateSelect(selectId, min, max, defaultVal, suffix = "") {
       const select = document.getElementById(selectId);
       select.innerHTML = '';
@@ -135,7 +140,6 @@
       }
     }
 
-    // 初期設定メニューの構築
     populateSelect('default-time', 5, 120, 30, " 秒");
     populateSelect('squad-count', 1, 5, 3, " 個分隊");
 
@@ -153,14 +157,13 @@
           <select id="ammo-squad-${i}"></select>
         `;
       }
-      // 生成した各分隊の弾数セレクトボックスに選択肢を追加 (1〜10発)
+      // 弾数を1〜50発に変更（初期値は10発）
       for (let i = 1; i <= count; i++) {
-        populateSelect(`ammo-squad-${i}`, 1, 10, 3, " 発");
+        populateSelect(`ammo-squad-${i}`, 1, 50, 10, " 発");
       }
     }
-    updateSquadConfigs(); // 初回実行
+    updateSquadConfigs();
 
-    // タイマー画面の生成
     function generateApp() {
       const defaultTime = parseInt(document.getElementById('default-time').value);
       const squadCount = parseInt(squadCountSelect.value);
@@ -190,11 +193,10 @@
       document.getElementById('timer-section').style.display = 'flex';
     }
 
-    // 個別のタイマー要素作成と挙動（ダブルタップ対応）
     function createTimerElement(duration, ammoNumber) {
       const div = document.createElement('div');
       div.className = 'timer';
-      div.setAttribute('data-num', ammoNumber); // 背景用の弾数をセット
+      div.setAttribute('data-num', ammoNumber);
       
       const timeSpan = document.createElement('span');
       timeSpan.textContent = duration.toFixed(1);
@@ -209,7 +211,6 @@
         const tapLength = currentTime - lastTap;
         lastTap = currentTime;
 
-        // ダブルタップ判定 (300ミリ秒以内の連続タップで停止＆リセット)
         if (tapLength < 300 && tapLength > 0) {
           clearInterval(interval);
           state = 'idle';
@@ -218,7 +219,6 @@
           return;
         }
 
-        // シングルタップ判定 (スタート)
         if (state === 'idle') {
           state = 'running';
           div.classList.add('running');
@@ -232,9 +232,16 @@
               timeSpan.textContent = '0.0';
               div.className = 'timer finished';
               state = 'finished';
+              
+              // ★自動スクロール機能: 同じ分隊の中で「まだ終わっていない次のタイマー」を探す
+              const nextActive = Array.from(div.parentElement.children).find(t => !t.classList.contains('finished'));
+              if (nextActive) {
+                // 次のタイマーが画面の中央に来るようにスムーズにスクロール
+                nextActive.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+
             } else {
               timeSpan.textContent = remaining.toFixed(1);
-              // 残り5秒以下で赤色点滅
               if (remaining <= 5.0 && !div.classList.contains('flashing')) {
                 div.classList.remove('running');
                 div.classList.add('flashing');
