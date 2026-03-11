@@ -6,7 +6,7 @@
   <title>弾着タイマー</title>
   <link rel="manifest" href="./manifest.json">
   <style>
-    /* 🎨 ライトモード・ダークモードのカラー定義（一括管理） */
+    /* 🎨 カラー定義（一括管理） */
     :root {
       --bg-color: #f4f4f9;
       --text-color: #333;
@@ -34,7 +34,6 @@
         --squad-title-bg: #2c2c2c;
         --timer-bg: #333;
         --timer-watermark: rgba(255,255,255,0.15);
-        /* ダークモードは白光りをやめ、黒い影でクッキリさせる */
         --timer-text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
         --input-bg: #2c2c2c;
         --input-border: #555;
@@ -57,7 +56,6 @@
       overflow: hidden;
     }
     
-    /* 設定画面 */
     #setup-section {
       height: 100%; overflow-y: auto; padding: 20px; box-sizing: border-box;
     }
@@ -79,7 +77,6 @@
     #generate-btn { margin-top: 25px; padding: 15px; font-size: 18px; }
     #squad-configs { margin-top: 15px; padding-left: 10px; border-left: 3px solid #0056b3; }
     
-    /* タイマー画面（1画面に収める） */
     #timer-section {
       height: 100%; display: none; flex-direction: column;
       box-sizing: border-box; overflow: hidden;
@@ -89,39 +86,38 @@
       overflow: hidden;
     }
     
-    /* 各分隊の枠 */
     .squad-container {
       flex: 1; display: flex; flex-direction: column;
       background-color: var(--card-bg); border-radius: 8px; box-shadow: 0 2px 4px var(--card-shadow);
       border-left: 5px solid #4CAF50; overflow: hidden; min-height: 0;
     }
     
-    /* 🔠 分隊タイトル（フォントサイズを大きく調整） */
     .squad-title {
-      font-weight: bold; 
-      font-size: 18px; /* 14pxから拡大 */
-      padding: 10px 15px; 
+      font-weight: bold; font-size: 18px; padding: 10px 15px; 
       background-color: var(--squad-title-bg);
       flex-shrink: 0; z-index: 10;
     }
     
-    /* ★ 各分隊の中だけでスクロール ★ */
-    .timer-grid {
-      display: grid; grid-template-columns: repeat(5, 1fr); 
-      gap: 10px; padding: 10px;
-      overflow-y: auto; flex: 1; scroll-behavior: smooth;
-      align-content: start; /* 縦伸びを防ぐ最重要プロパティ */
+    /* ★ 縦潰れ防止策1：スクロール専用の枠を分離 ★ */
+    .squad-scroll-area {
+      flex: 1; overflow-y: auto; padding: 10px; scroll-behavior: smooth;
     }
     
-    /* 🟩 タイマーボタンの形状（絶対に正方形を維持する設定） */
+    /* ★ 縦潰れ防止策2：Gridは高さを制限せず自然に伸びるようにする ★ */
+    .timer-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); 
+      gap: 10px; 
+      height: max-content; /* 中身の分だけしっかり高さを確保する */
+    }
+    
     .timer {
       position: relative; display: flex; align-items: center; justify-content: center;
       background-color: var(--timer-bg); border-radius: 5px; cursor: pointer; user-select: none;
       box-shadow: 0 2px 2px rgba(0,0,0,0.1); overflow: hidden;
-      width: 100%;          /* 横幅をグリッドに合わせる */
-      aspect-ratio: 1 / 1;  /* 高さを横幅と全く同じにする */
+      width: 100%;
+      aspect-ratio: 1 / 1;
       box-sizing: border-box;
-      border: 1px solid transparent; /* 動作時の枠線ズレ防止 */
+      border: 1px solid transparent; 
     }
     .timer::before {
       content: attr(data-num); position: absolute;
@@ -135,14 +131,12 @@
       text-shadow: var(--timer-text-shadow);
     }
     
-    /* タイマー作動中の状態 */
     .timer.running { 
       background-color: var(--timer-running-bg); 
       border: 1px solid var(--timer-running-border); 
       color: var(--timer-running-text); 
     }
     
-    /* 終了・点滅時の状態（色を固定） */
     .timer.flashing { 
       animation: blink 0.5s infinite alternate; 
       background-color: #f44336; color: white; border-color: #f44336; 
@@ -244,6 +238,10 @@
         squadDiv.className = 'squad-container';
         squadDiv.innerHTML = `<div class="squad-title">第${i}分隊</div>`;
         
+        // ★ スクロール領域とグリッド領域を分離して生成 ★
+        const scrollArea = document.createElement('div');
+        scrollArea.className = 'squad-scroll-area';
+        
         const gridDiv = document.createElement('div');
         gridDiv.className = 'timer-grid';
 
@@ -252,7 +250,8 @@
           gridDiv.appendChild(timerObj);
         }
         
-        squadDiv.appendChild(gridDiv);
+        scrollArea.appendChild(gridDiv);
+        squadDiv.appendChild(scrollArea);
         wrapper.appendChild(squadDiv);
       }
 
