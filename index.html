@@ -75,7 +75,38 @@
     }
     button:active { background: #004494; }
     #generate-btn { margin-top: 25px; padding: 15px; font-size: 18px; }
+    
+    /* 設定項目内の区切り線 */
+    .squad-config-group {
+      margin-top: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--input-border);
+    }
+    .squad-config-group:last-child { border-bottom: none; padding-bottom: 0; }
+    
     #squad-configs { margin-top: 15px; padding-left: 10px; border-left: 3px solid #0056b3; }
+    
+    /* ★ トグルスイッチのCSS設定 ★ */
+    .switch-container {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 20px; margin-bottom: 5px; font-weight: bold;
+      padding: 10px 0; border-top: 1px solid var(--input-border); border-bottom: 1px solid var(--input-border);
+    }
+    .switch {
+      position: relative; display: inline-block; width: 50px; height: 28px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc; transition: .4s; border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px;
+      background-color: white; transition: .4s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: #4CAF50; }
+    input:checked + .slider:before { transform: translateX(22px); }
+    
+    /* 個別秒数設定の表示制御用クラス */
+    .squad-time-container { display: none; margin-top: 10px; }
     
     #timer-section {
       height: 100%; display: none; flex-direction: column;
@@ -83,16 +114,9 @@
     }
 
     #global-timer-container {
-      background-color: var(--card-bg);
-      margin: 10px 10px 0 10px; 
-      padding: 12px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px var(--card-shadow);
-      text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-      border-left: 5px solid #0056b3;
-      flex-shrink: 0;
+      background-color: var(--card-bg); margin: 10px 10px 0 10px; padding: 12px;
+      border-radius: 8px; box-shadow: 0 2px 4px var(--card-shadow); text-align: center;
+      font-size: 22px; font-weight: bold; border-left: 5px solid #0056b3; flex-shrink: 0;
     }
 
     #squads-wrapper {
@@ -108,8 +132,7 @@
     
     .squad-title {
       font-weight: bold; font-size: 18px; padding: 10px 15px; 
-      background-color: var(--squad-title-bg);
-      flex-shrink: 0; z-index: 10;
+      background-color: var(--squad-title-bg); flex-shrink: 0; z-index: 10;
     }
     
     .squad-scroll-area {
@@ -117,28 +140,20 @@
     }
     
     .timer-grid {
-      display: grid; grid-template-columns: repeat(5, 1fr); 
-      gap: 10px; 
-      height: max-content; 
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; height: max-content; 
     }
     
     .timer {
       position: relative; display: flex; align-items: center; justify-content: center;
       background-color: var(--timer-bg); border-radius: 5px; cursor: pointer; user-select: none;
-      box-shadow: 0 2px 2px rgba(0,0,0,0.1); overflow: hidden;
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      box-sizing: border-box;
-      border: 1px solid transparent; 
+      box-shadow: 0 2px 2px rgba(0,0,0,0.1); overflow: hidden; width: 100%;
+      aspect-ratio: 1 / 1; box-sizing: border-box; border: 1px solid transparent; 
     }
     
-    /* ★ 背景の弾数を枠ギリギリまで最大化 ★ */
     .timer::before {
       content: attr(data-num); position: absolute;
       top: 50%; left: 50%; transform: translate(-50%, -50%);
-      font-size: min(13vw, 55px); /* 画面サイズに合わせて最大化、限界は55px */
-      line-height: 1; /* 行の高さを詰めてズレを防止 */
-      font-weight: 900; 
+      font-size: min(13vw, 55px); line-height: 1; font-weight: 900; 
       color: var(--timer-watermark); z-index: 1;
     }
     
@@ -148,14 +163,11 @@
     }
     
     .timer.running { 
-      background-color: var(--timer-running-bg); 
-      border: 1px solid var(--timer-running-border); 
-      color: var(--timer-running-text); 
+      background-color: var(--timer-running-bg); border: 1px solid var(--timer-running-border); color: var(--timer-running-text); 
     }
     
     .timer.flashing { 
-      animation: blink 0.5s infinite alternate; 
-      background-color: #f44336; color: white; border-color: #f44336; 
+      animation: blink 0.5s infinite alternate; background-color: #f44336; color: white; border-color: #f44336; 
     }
     .timer.finished { 
       background-color: #d32f2f; color: white; border-color: #d32f2f; 
@@ -182,8 +194,19 @@
   <div id="setup-section">
     <h1>💣 弾着タイマー設定</h1>
     <div class="card">
-      <label>一括セットする秒数</label>
-      <select id="default-time"></select>
+      
+      <div id="default-time-container">
+        <label>一括セットする秒数</label>
+        <select id="default-time"></select>
+      </div>
+
+      <div class="switch-container">
+        <span>分隊ごとに秒数を個別設定</span>
+        <label class="switch">
+          <input type="checkbox" id="per-squad-time-toggle">
+          <span class="slider"></span>
+        </label>
+      </div>
 
       <label>分隊の数（1〜5）</label>
       <select id="squad-count"></select>
@@ -216,6 +239,7 @@
 
     function populateSelect(selectId, min, max, defaultVal, suffix = "") {
       const select = document.getElementById(selectId);
+      if (!select) return;
       select.innerHTML = '';
       for (let i = min; i <= max; i++) {
         const opt = document.createElement('option');
@@ -231,20 +255,42 @@
 
     const squadCountSelect = document.getElementById('squad-count');
     const squadConfigsDiv = document.getElementById('squad-configs');
+    const toggleSwitch = document.getElementById('per-squad-time-toggle');
 
     squadCountSelect.addEventListener('change', updateSquadConfigs);
     
+    // トグルが切り替わったときの処理（表示/非表示を切り替え）
+    toggleSwitch.addEventListener('change', (e) => {
+      const isChecked = e.target.checked;
+      document.getElementById('default-time-container').style.display = isChecked ? 'none' : 'block';
+      const timeContainers = document.querySelectorAll('.squad-time-container');
+      timeContainers.forEach(container => {
+        container.style.display = isChecked ? 'block' : 'none';
+      });
+    });
+
     function updateSquadConfigs() {
       const count = parseInt(squadCountSelect.value);
+      const defaultTimeVal = parseInt(document.getElementById('default-time').value) || 30;
+      const isChecked = toggleSwitch.checked;
+
       squadConfigsDiv.innerHTML = '';
       for (let i = 1; i <= count; i++) {
         squadConfigsDiv.innerHTML += `
-          <label>第${i}分隊の弾数</label>
-          <select id="ammo-squad-${i}"></select>
+          <div class="squad-config-group">
+            <label>第${i}分隊の弾数</label>
+            <select id="ammo-squad-${i}"></select>
+            
+            <div class="squad-time-container" id="time-container-squad-${i}" style="display: ${isChecked ? 'block' : 'none'};">
+              <label style="color: #4CAF50;">第${i}分隊の秒数</label>
+              <select id="time-squad-${i}"></select>
+            </div>
+          </div>
         `;
       }
       for (let i = 1; i <= count; i++) {
         populateSelect(`ammo-squad-${i}`, 1, 50, 10, " 発");
+        populateSelect(`time-squad-${i}`, 5, 120, defaultTimeVal, " 秒");
       }
     }
     updateSquadConfigs();
@@ -254,17 +300,22 @@
       globalStartTime = null;
       document.getElementById('global-timer-display').textContent = '00:00';
 
-      const defaultTime = parseInt(document.getElementById('default-time').value);
+      const isPerSquadTime = toggleSwitch.checked;
+      const globalDefaultTime = parseInt(document.getElementById('default-time').value);
       const squadCount = parseInt(squadCountSelect.value);
       const wrapper = document.getElementById('squads-wrapper');
       wrapper.innerHTML = '';
 
       for (let i = 1; i <= squadCount; i++) {
         const ammoCount = parseInt(document.getElementById(`ammo-squad-${i}`).value);
+        // ★ トグルがONなら個別設定の秒数を、OFFなら一括設定の秒数を読み込む
+        const squadTime = isPerSquadTime 
+            ? parseInt(document.getElementById(`time-squad-${i}`).value) 
+            : globalDefaultTime;
         
         const squadDiv = document.createElement('div');
         squadDiv.className = 'squad-container';
-        squadDiv.innerHTML = `<div class="squad-title">第${i}分隊</div>`;
+        squadDiv.innerHTML = `<div class="squad-title">第${i}分隊 (${squadTime}秒)</div>`; // タイトルに秒数も表示してわかりやすく
         
         const scrollArea = document.createElement('div');
         scrollArea.className = 'squad-scroll-area';
@@ -273,7 +324,7 @@
         gridDiv.className = 'timer-grid';
 
         for (let j = 1; j <= ammoCount; j++) {
-          const timerObj = createTimerElement(defaultTime, j);
+          const timerObj = createTimerElement(squadTime, j); // 各分隊用の秒数を渡す
           gridDiv.appendChild(timerObj);
         }
         
