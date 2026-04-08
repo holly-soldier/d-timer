@@ -6,101 +6,55 @@
   <title>弾着タイマー</title>
   <link rel="manifest" href="./manifest.json?v=2">
   <style>
-    /* 🎨 カラー定義 */
     :root {
-      --bg-color: #f4f4f9;
-      --text-color: #333;
-      --card-bg: #fff;
-      --card-shadow: rgba(0,0,0,0.1);
-      --squad-title-bg: #eee;
-      --timer-bg: #e0e0e0;
-      --timer-watermark: rgba(0,0,0,0.25);
+      --bg-color: #f4f4f9; --text-color: #333; --card-bg: #fff; --card-shadow: rgba(0,0,0,0.1);
+      --squad-title-bg: #eee; --timer-bg: #e0e0e0; --timer-watermark: rgba(0,0,0,0.25);
       --timer-text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.9), 0px 0px 4px rgba(255, 255, 255, 0.9);
-      --input-bg: #f9f9f9;
-      --input-border: #ccc;
-      --btn-reset-container-bg: #fff;
-      --btn-reset-border: #ccc;
-      --timer-running-bg: #fff9c4;
-      --timer-running-border: #fbc02d;
-      --timer-running-text: #333;
-      --hint-color: #666;
-      --hint-border: #ddd;
+      --input-bg: #f9f9f9; --input-border: #ccc; --btn-reset-container-bg: #fff; --btn-reset-border: #ccc;
+      --timer-running-bg: #fff9c4; --timer-running-border: #fbc02d; --timer-running-text: #333;
+      --hint-color: #666; --hint-border: #ddd;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg-color: #121212;
-        --text-color: #e0e0e0;
-        --card-bg: #1e1e1e;
-        --card-shadow: rgba(0,0,0,0.5);
-        --squad-title-bg: #2c2c2c;
-        --timer-bg: #333;
-        --timer-watermark: rgba(255,255,255,0.3);
+        --bg-color: #121212; --text-color: #e0e0e0; --card-bg: #1e1e1e; --card-shadow: rgba(0,0,0,0.5);
+        --squad-title-bg: #2c2c2c; --timer-bg: #333; --timer-watermark: rgba(255,255,255,0.3);
         --timer-text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
-        --input-bg: #2c2c2c;
-        --input-border: #555;
-        --btn-reset-container-bg: #121212;
-        --btn-reset-border: #333;
-        --timer-running-bg: #5c5311;
-        --timer-running-border: #fbc02d;
-        --timer-running-text: #fff;
-        --hint-color: #aaa;
-        --hint-border: #444;
+        --input-bg: #2c2c2c; --input-border: #555; --btn-reset-container-bg: #121212; --btn-reset-border: #333;
+        --timer-running-bg: #5c5311; --timer-running-border: #fbc02d; --timer-running-text: #fff;
+        --hint-color: #aaa; --hint-border: #444;
       }
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      margin: 0; padding: 0;
-      background-color: var(--bg-color); color: var(--text-color);
-      height: 100vh; width: 100vw;
-      display: flex; flex-direction: column;
-      touch-action: manipulation;
-      overflow: hidden;
+      margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color);
+      height: 100vh; width: 100vw; display: flex; flex-direction: column; touch-action: manipulation; overflow: hidden;
     }
     
-    #setup-section {
-      height: 100%; overflow-y: auto; padding: 20px; box-sizing: border-box;
-    }
+    #setup-section { height: 100%; overflow-y: auto; padding: 20px; box-sizing: border-box; }
     
-    .header-container {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
-    }
+    .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
     .header-container h1 { margin: 0; font-size: 20px; text-align: left; }
     
     .calc-btn {
       background-color: #ff9800; color: white; border: none; padding: 8px 12px;
-      font-size: 14px; font-weight: bold; border-radius: 5px; cursor: pointer; width: auto;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      font-size: 14px; font-weight: bold; border-radius: 5px; cursor: pointer; width: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     .calc-btn:active { background-color: #e68a00; }
 
-    .card {
-      background-color: var(--card-bg); padding: 20px; border-radius: 10px;
-      box-shadow: 0 4px 6px var(--card-shadow); margin-bottom: 20px;
-    }
+    .card { background-color: var(--card-bg); padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px var(--card-shadow); margin-bottom: 20px; }
     label { display: block; font-weight: bold; margin-bottom: 5px; margin-top: 15px; }
-    select {
-      width: 100%; padding: 12px; font-size: 16px; border: 1px solid var(--input-border);
-      border-radius: 5px; background-color: var(--input-bg); box-sizing: border-box; color: var(--text-color);
-    }
-    button {
-      background: #0056b3; color: white; border: none; padding: 12px 20px;
-      font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%;
-    }
+    select { width: 100%; padding: 12px; font-size: 16px; border: 1px solid var(--input-border); border-radius: 5px; background-color: var(--input-bg); box-sizing: border-box; color: var(--text-color); }
+    button { background: #0056b3; color: white; border: none; padding: 12px 20px; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; }
     button:active { background: #004494; }
     #generate-btn { margin-top: 25px; padding: 15px; font-size: 18px; }
     
     .squad-config-group { margin-top: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--input-border); }
     .squad-config-group:last-child { border-bottom: none; padding-bottom: 0; }
-    
     #squad-configs { margin-top: 15px; padding-left: 10px; border-left: 3px solid #0056b3; }
     
-    .switch-container {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-top: 20px; margin-bottom: 5px; font-weight: bold;
-      padding: 10px 0; border-top: 1px solid var(--input-border); border-bottom: 1px solid var(--input-border);
-    }
+    .switch-container { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; margin-bottom: 5px; font-weight: bold; padding: 10px 0; border-top: 1px solid var(--input-border); border-bottom: 1px solid var(--input-border); }
     .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
@@ -110,95 +64,44 @@
     
     .squad-time-container { display: none; margin-top: 10px; }
     
-    #timer-section {
-      height: 100%; display: none; flex-direction: column;
-      box-sizing: border-box; overflow: hidden;
-    }
+    #timer-section { height: 100%; display: none; flex-direction: column; box-sizing: border-box; overflow: hidden; }
 
-    #global-timer-container {
-      background-color: var(--card-bg); margin: 10px 10px 0 10px; padding: 12px;
-      border-radius: 8px; box-shadow: 0 2px 4px var(--card-shadow);
-      border-left: 5px solid #0056b3; flex-shrink: 0;
-    }
+    #global-timer-container { background-color: var(--card-bg); margin: 10px 10px 0 10px; padding: 12px; border-radius: 8px; box-shadow: 0 2px 4px var(--card-shadow); border-left: 5px solid #0056b3; flex-shrink: 0; }
     .global-time-row { display: flex; justify-content: space-between; align-items: center; }
     .global-time-text { font-size: 20px; font-weight: bold; text-align: left; }
-    .timer-hint {
-      font-size: 12px; font-weight: normal; color: var(--hint-color);
-      margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--hint-border);
-    }
+    .timer-hint { font-size: 12px; font-weight: normal; color: var(--hint-color); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--hint-border); }
 
-    #squads-wrapper {
-      flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow: hidden;
-    }
-    
-    .squad-container {
-      flex: 1; display: flex; flex-direction: column;
-      background-color: var(--card-bg); border-radius: 8px; box-shadow: 0 2px 4px var(--card-shadow);
-      border-left: 5px solid #4CAF50; overflow: hidden; min-height: 0;
-    }
-    
-    .squad-title {
-      font-weight: bold; font-size: 18px; padding: 10px 15px; 
-      background-color: var(--squad-title-bg); flex-shrink: 0; z-index: 10;
-    }
-    
+    #squads-wrapper { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow: hidden; }
+    .squad-container { flex: 1; display: flex; flex-direction: column; background-color: var(--card-bg); border-radius: 8px; box-shadow: 0 2px 4px var(--card-shadow); border-left: 5px solid #4CAF50; overflow: hidden; min-height: 0; }
+    .squad-title { font-weight: bold; font-size: 18px; padding: 10px 15px; background-color: var(--squad-title-bg); flex-shrink: 0; z-index: 10; }
     .squad-scroll-area { flex: 1; overflow-y: auto; padding: 10px; scroll-behavior: smooth; }
     .timer-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; height: max-content; }
     
-    .timer {
-      position: relative; display: flex; align-items: center; justify-content: center;
-      background-color: var(--timer-bg); border-radius: 5px; cursor: pointer; user-select: none;
-      box-shadow: 0 2px 2px rgba(0,0,0,0.1); overflow: hidden; width: 100%;
-      aspect-ratio: 1 / 1; box-sizing: border-box; border: 1px solid transparent; 
-    }
-    
-    .timer::before {
-      content: attr(data-num); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      font-size: min(13vw, 55px); line-height: 1; font-weight: 900; 
-      color: var(--timer-watermark); z-index: 1;
-    }
-    
+    .timer { position: relative; display: flex; align-items: center; justify-content: center; background-color: var(--timer-bg); border-radius: 5px; cursor: pointer; user-select: none; box-shadow: 0 2px 2px rgba(0,0,0,0.1); overflow: hidden; width: 100%; aspect-ratio: 1 / 1; box-sizing: border-box; border: 1px solid transparent; }
+    .timer::before { content: attr(data-num); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: min(13vw, 55px); line-height: 1; font-weight: 900; color: var(--timer-watermark); z-index: 1; }
     .timer span { position: relative; z-index: 2; font-size: 18px; font-weight: bold; text-shadow: var(--timer-text-shadow); }
-    
     .timer.running { background-color: var(--timer-running-bg); border: 1px solid var(--timer-running-border); color: var(--timer-running-text); }
     .timer.flashing { animation: blink 0.5s infinite alternate; background-color: #f44336; color: white; border-color: #f44336; }
     .timer.finished { background-color: #d32f2f; color: white; border-color: #d32f2f; }
     .timer.finished span, .timer.flashing span { text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.6); }
     .timer.finished::before { color: rgba(255,255,255,0.4); } 
-    
-    @keyframes blink {
-      from { background-color: #f44336; }
-      to { background-color: #ffcdd2; color: #d32f2f; }
-    }
+    @keyframes blink { from { background-color: #f44336; } to { background-color: #ffcdd2; color: #d32f2f; } }
     
     #reset-btn-container { padding: 10px; background-color: var(--btn-reset-container-bg); border-top: 1px solid var(--btn-reset-border); flex-shrink: 0; }
     #reset-btn { background: #555; padding: 12px; }
 
-    /* ★ 諸元計算ポップアップ用CSS（文字サイズ・入力欄の拡大） */
-    .modal-overlay {
-      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center;
-    }
-    .modal-content {
-      background-color: var(--card-bg); width: 92%; max-width: 400px; max-height: 90vh; overflow-y: auto;
-      border-radius: 10px; padding: 25px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-      position: relative; color: var(--text-color);
-    }
-    .modal-close {
-      position: absolute; top: 15px; right: 15px; background: transparent; border: none;
-      font-size: 26px; color: var(--text-color); cursor: pointer; padding: 0; width: auto; line-height: 1;
-    }
+    /* ★ 諸元計算ポップアップ用CSS */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-content { background-color: var(--card-bg); width: 92%; max-width: 400px; max-height: 90vh; overflow-y: auto; border-radius: 10px; padding: 25px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); position: relative; color: var(--text-color); }
+    .modal-close { position: absolute; top: 15px; right: 15px; background: transparent; border: none; font-size: 26px; color: var(--text-color); cursor: pointer; padding: 0; width: auto; line-height: 1; }
     .modal-title { margin-top: 0; font-size: 20px; border-bottom: 2px solid #ff9800; padding-bottom: 8px; margin-bottom: 20px; }
     
     .calc-input-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .calc-input-group label { margin: 0; font-size: 16px; font-weight: bold; } /* 14px -> 16px, 太字に */
-    .calc-input-group input { 
-      width: 45%; padding: 10px; font-size: 16px; border: 1px solid var(--input-border); /* 入力欄を拡大 */
-      border-radius: 5px; background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box;
-    }
+    .calc-input-group label { margin: 0; font-size: 16px; font-weight: bold; } 
+    .calc-input-group input { width: 45%; padding: 10px; font-size: 16px; border: 1px solid var(--input-border); border-radius: 5px; background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box; }
     
     .calc-results { background-color: var(--bg-color); padding: 18px; border-radius: 8px; margin-top: 20px; }
-    .calc-res-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; font-size: 18px; } /* 15px -> 18px */
+    .calc-res-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; font-size: 18px; } 
     .calc-res-row:last-child { margin-bottom: 0; }
     .calc-res-val { color: #ff9800; }
   </style>
@@ -256,45 +159,41 @@
       <h2 class="modal-title">📊 諸元計算</h2>
       
       <div class="calc-input-group">
-        <label>観目方位角 (ミル)</label>
+        <label>観目方位角</label>
         <input type="number" step="any" id="calc-ot-azi" oninput="doCalc()">
       </div>
       <div class="calc-input-group">
-        <label>観目距離 (m)</label>
+        <label>観目距離</label>
         <input type="number" step="any" id="calc-ot-dist" oninput="doCalc()">
       </div>
       <div class="calc-input-group">
-        <label>砲目方位角 (ミル)</label>
+        <label>砲目方位角</label>
         <input type="number" step="any" id="calc-gt-azi" oninput="doCalc()">
       </div>
       <div class="calc-input-group">
-        <label>砲目距離 (m)</label>
+        <label>砲目距離</label>
         <input type="number" step="any" id="calc-gt-dist" oninput="doCalc()">
       </div>
       <div class="calc-input-group">
-        <label>砲間隔 (m)</label>
+        <label>砲間隔</label>
         <input type="number" step="any" id="calc-gun-space" oninput="doCalc()">
       </div>
       <div class="calc-input-group">
-        <label>PER (m)</label>
+        <label>PER</label>
         <input type="number" step="any" id="calc-per" oninput="doCalc()">
       </div>
 
       <div class="calc-results">
         <div class="calc-res-row">
-          <span>観砲頂角 (T):</span>
-          <span id="res-t" class="calc-res-val">-</span>
-        </div>
-        <div class="calc-res-row">
-          <span>略近:</span>
-          <span id="res-ryakukin" class="calc-res-val">-</span>
-        </div>
-        <div class="calc-res-row">
-          <span>略近QPER:</span>
+          <span>QPER:</span>
           <span id="res-qper" class="calc-res-val">-</span>
         </div>
         <div class="calc-res-row">
-          <span>方向比 (P):</span>
+          <span>略近QPER:</span>
+          <span id="res-ryakukin-qper" class="calc-res-val">-</span>
+        </div>
+        <div class="calc-res-row">
+          <span>方向比:</span>
           <span id="res-dir-ratio" class="calc-res-val">-</span>
         </div>
         <div class="calc-res-row">
@@ -320,13 +219,9 @@
         catch (err) {}
       }
     }
-
     function releaseWakeLock() {
-      if (wakeLock !== null) {
-        wakeLock.release().then(() => { wakeLock = null; });
-      }
+      if (wakeLock !== null) { wakeLock.release().then(() => { wakeLock = null; }); }
     }
-
     document.addEventListener('visibilitychange', async () => {
       if (wakeLock !== null && document.visibilityState === 'visible') { requestWakeLock(); }
     });
@@ -335,7 +230,7 @@
     function closeCalc() { document.getElementById('calc-modal').style.display = 'none'; }
     function closeCalcOnBg(e) { if(e.target === document.getElementById('calc-modal')) closeCalc(); }
 
-    // ★ 諸元計算ロジック
+    // ★ 諸元計算ロジック（改修版）
     function doCalc() {
       const otAzi = parseFloat(document.getElementById('calc-ot-azi').value);
       const OA = parseFloat(document.getElementById('calc-ot-dist').value); // 観目距離
@@ -344,45 +239,54 @@
       const gunSpace = parseFloat(document.getElementById('calc-gun-space').value);
       const PER = parseFloat(document.getElementById('calc-per').value);
 
-      // 1. 観砲頂角 (T)
+      // 観砲頂角 (T) の計算
       let T = NaN;
       if (!isNaN(otAzi) && !isNaN(gtAzi)) {
         T = Math.abs(otAzi - gtAzi);
         if (T > 3200) T = 6400 - T;
-        document.getElementById('res-t').textContent = T + " ミル";
-      } else {
-        document.getElementById('res-t').textContent = "-";
       }
+      
+      // ラジアン変換 (sin, cos 計算用)
+      const T_rad = (!isNaN(T)) ? (T * Math.PI / 3200) : NaN;
 
-      // 2. 略近 = (T / 100) * (MA / OA)
-      let ryakukin = NaN;
-      if (!isNaN(T) && !isNaN(MA) && !isNaN(OA) && OA !== 0) {
-        ryakukin = (T / 100) * (MA / OA);
-        document.getElementById('res-ryakukin').textContent = ryakukin.toFixed(2);
-      } else {
-        document.getElementById('res-ryakukin').textContent = "-";
-      }
-
-      // 3. 略近QPER = (PER / 100) * 略近
-      if (!isNaN(PER) && !isNaN(ryakukin)) {
-        const ryakukinQper = (PER / 100) * ryakukin;
-        document.getElementById('res-qper').textContent = ryakukinQper.toFixed(2);
+      // 1. QPER = (PER / 100) * Q 
+      // Q = 100 * sin(T) / (OA / 1000)
+      if (!isNaN(T_rad) && !isNaN(OA) && OA !== 0 && !isNaN(PER)) {
+        const Q = (100 * Math.sin(T_rad)) / (OA / 1000);
+        const qper = (PER / 100) * Q;
+        document.getElementById('res-qper').textContent = qper.toFixed(2);
       } else {
         document.getElementById('res-qper').textContent = "-";
       }
 
-      // 4. 方向比 (P) = 観目距離 / 砲目距離
-      if (!isNaN(OA) && !isNaN(MA) && MA !== 0) {
-        const p = OA / MA;
-        document.getElementById('res-dir-ratio').textContent = p.toFixed(2);
+      // 2. 略近QPER = (T / 100) * (MA / OA) * (PER / 100)
+      if (!isNaN(T) && !isNaN(MA) && !isNaN(OA) && OA !== 0 && !isNaN(PER)) {
+        const ryakukinQ = (T / 100) * (MA / OA);
+        const ryakukinQper = (PER / 100) * ryakukinQ;
+        document.getElementById('res-ryakukin-qper').textContent = ryakukinQper.toFixed(2);
+      } else {
+        document.getElementById('res-ryakukin-qper').textContent = "-";
+      }
+
+      // 3. 方向比 = OA / (MA * cos(T))
+      if (!isNaN(OA) && !isNaN(MA) && MA !== 0 && !isNaN(T_rad)) {
+        const cosT = Math.cos(T_rad);
+        if (Math.abs(cosT) < 0.0001) {
+          // Tが1600ミル(90度)の時はゼロ割りになるためガード
+          document.getElementById('res-dir-ratio').textContent = "計算不可";
+        } else {
+          const p = OA / (MA * cosT);
+          // 比率なので絶対値表示
+          document.getElementById('res-dir-ratio').textContent = Math.abs(p).toFixed(2);
+        }
       } else {
         document.getElementById('res-dir-ratio').textContent = "-";
       }
 
-      // 5. 砲間隔ミル数 = 砲間隔 / (砲目距離 / 1000)
+      // 4. 砲間隔ミル数 = 砲間隔 / (MA / 1000)
       if (!isNaN(gunSpace) && !isNaN(MA) && MA !== 0) {
         const gunMils = gunSpace / (MA / 1000);
-        document.getElementById('res-gun-mils').textContent = gunMils.toFixed(1) + " ミル";
+        document.getElementById('res-gun-mils').textContent = gunMils.toFixed(1);
       } else {
         document.getElementById('res-gun-mils').textContent = "-";
       }
@@ -415,9 +319,7 @@
       const isChecked = e.target.checked;
       document.getElementById('default-time-container').style.display = isChecked ? 'none' : 'block';
       const timeContainers = document.querySelectorAll('.squad-time-container');
-      timeContainers.forEach(container => {
-        container.style.display = isChecked ? 'block' : 'none';
-      });
+      timeContainers.forEach(container => { container.style.display = isChecked ? 'block' : 'none'; });
     });
 
     function updateSquadConfigs() {
@@ -459,9 +361,7 @@
 
       for (let i = 1; i <= squadCount; i++) {
         const ammoCount = parseInt(document.getElementById(`ammo-squad-${i}`).value);
-        const squadTime = isPerSquadTime 
-            ? parseInt(document.getElementById(`time-squad-${i}`).value) 
-            : globalDefaultTime;
+        const squadTime = isPerSquadTime ? parseInt(document.getElementById(`time-squad-${i}`).value) : globalDefaultTime;
         
         const squadDiv = document.createElement('div');
         squadDiv.className = 'squad-container';
@@ -509,15 +409,11 @@
 
         if (tapLength < 300 && tapLength > 0) {
           clearInterval(interval);
-          state = 'idle';
-          div.className = 'timer';
-          timeSpan.textContent = duration.toFixed(1);
-          return;
+          state = 'idle'; div.className = 'timer'; timeSpan.textContent = duration.toFixed(1); return;
         }
 
         if (state === 'idle') {
-          state = 'running';
-          div.classList.add('running');
+          state = 'running'; div.classList.add('running');
           const endTime = Date.now() + duration * 1000;
 
           if (globalStartTime === null) {
@@ -533,41 +429,24 @@
 
           interval = setInterval(() => {
             const remaining = (endTime - Date.now()) / 1000;
-            
             if (remaining <= 0) {
-              clearInterval(interval);
-              timeSpan.textContent = '0.0';
-              div.className = 'timer finished';
-              state = 'finished';
-              
+              clearInterval(interval); timeSpan.textContent = '0.0'; div.className = 'timer finished'; state = 'finished';
               const siblings = Array.from(div.parentElement.children);
               const nextActive = siblings.find(t => !t.classList.contains('finished'));
-              if (nextActive) {
-                nextActive.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }
-
+              if (nextActive) { nextActive.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
             } else {
               timeSpan.textContent = remaining.toFixed(1);
-              if (remaining <= 5.0 && !div.classList.contains('flashing')) {
-                div.classList.remove('running');
-                div.classList.add('flashing');
-              }
+              if (remaining <= 5.0 && !div.classList.contains('flashing')) { div.classList.remove('running'); div.classList.add('flashing'); }
             }
           }, 100);
         }
       });
-
       return div;
     }
 
     function resetApp() {
-      clearInterval(globalInterval);
-      globalStartTime = null;
-      document.getElementById('global-timer-display').textContent = '00:00';
-
-      document.getElementById('setup-section').style.display = 'block';
-      document.getElementById('timer-section').style.display = 'none';
-      
+      clearInterval(globalInterval); globalStartTime = null; document.getElementById('global-timer-display').textContent = '00:00';
+      document.getElementById('setup-section').style.display = 'block'; document.getElementById('timer-section').style.display = 'none';
       releaseWakeLock();
     }
   </script>
