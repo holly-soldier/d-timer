@@ -174,31 +174,31 @@
     #reset-btn-container { padding: 10px; background-color: var(--btn-reset-container-bg); border-top: 1px solid var(--btn-reset-border); flex-shrink: 0; }
     #reset-btn { background: #555; padding: 12px; }
 
-    /* ★ 諸元計算ポップアップ用CSS */
+    /* ★ 諸元計算ポップアップ用CSS（文字サイズ・入力欄の拡大） */
     .modal-overlay {
       display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center;
     }
     .modal-content {
-      background-color: var(--card-bg); width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto;
-      border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      background-color: var(--card-bg); width: 92%; max-width: 400px; max-height: 90vh; overflow-y: auto;
+      border-radius: 10px; padding: 25px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
       position: relative; color: var(--text-color);
     }
     .modal-close {
       position: absolute; top: 15px; right: 15px; background: transparent; border: none;
-      font-size: 24px; color: var(--text-color); cursor: pointer; padding: 0; width: auto; line-height: 1;
+      font-size: 26px; color: var(--text-color); cursor: pointer; padding: 0; width: auto; line-height: 1;
     }
-    .modal-title { margin-top: 0; font-size: 18px; border-bottom: 2px solid #ff9800; padding-bottom: 8px; margin-bottom: 15px; }
+    .modal-title { margin-top: 0; font-size: 20px; border-bottom: 2px solid #ff9800; padding-bottom: 8px; margin-bottom: 20px; }
     
-    .calc-input-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .calc-input-group label { margin: 0; font-size: 14px; font-weight: normal; }
+    .calc-input-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .calc-input-group label { margin: 0; font-size: 16px; font-weight: bold; } /* 14px -> 16px, 太字に */
     .calc-input-group input { 
-      width: 40%; padding: 8px; font-size: 14px; border: 1px solid var(--input-border); 
+      width: 45%; padding: 10px; font-size: 16px; border: 1px solid var(--input-border); /* 入力欄を拡大 */
       border-radius: 5px; background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box;
     }
     
-    .calc-results { background-color: var(--bg-color); padding: 15px; border-radius: 8px; margin-top: 15px; }
-    .calc-res-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold; font-size: 15px; }
+    .calc-results { background-color: var(--bg-color); padding: 18px; border-radius: 8px; margin-top: 20px; }
+    .calc-res-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; font-size: 18px; } /* 15px -> 18px */
     .calc-res-row:last-child { margin-bottom: 0; }
     .calc-res-val { color: #ff9800; }
   </style>
@@ -260,7 +260,7 @@
         <input type="number" step="any" id="calc-ot-azi" oninput="doCalc()">
       </div>
       <div class="calc-input-group">
-        <label>観目距離 [OA] (m)</label>
+        <label>観目距離 (m)</label>
         <input type="number" step="any" id="calc-ot-dist" oninput="doCalc()">
       </div>
       <div class="calc-input-group">
@@ -268,7 +268,7 @@
         <input type="number" step="any" id="calc-gt-azi" oninput="doCalc()">
       </div>
       <div class="calc-input-group">
-        <label>砲目距離 [MA] (m)</label>
+        <label>砲目距離 (m)</label>
         <input type="number" step="any" id="calc-gt-dist" oninput="doCalc()">
       </div>
       <div class="calc-input-group">
@@ -276,7 +276,7 @@
         <input type="number" step="any" id="calc-gun-space" oninput="doCalc()">
       </div>
       <div class="calc-input-group">
-        <label>PER [射距離公算誤差] (m)</label>
+        <label>PER (m)</label>
         <input type="number" step="any" id="calc-per" oninput="doCalc()">
       </div>
 
@@ -286,16 +286,12 @@
           <span id="res-t" class="calc-res-val">-</span>
         </div>
         <div class="calc-res-row">
-          <span>観測率 (Q):</span>
-          <span id="res-q" class="calc-res-val">-</span>
-        </div>
-        <div class="calc-res-row">
-          <span>QPER:</span>
-          <span id="res-qper" class="calc-res-val">-</span>
-        </div>
-        <div class="calc-res-row">
           <span>略近:</span>
           <span id="res-ryakukin" class="calc-res-val">-</span>
+        </div>
+        <div class="calc-res-row">
+          <span>略近QPER:</span>
+          <span id="res-qper" class="calc-res-val">-</span>
         </div>
         <div class="calc-res-row">
           <span>方向比 (P):</span>
@@ -335,58 +331,47 @@
       if (wakeLock !== null && document.visibilityState === 'visible') { requestWakeLock(); }
     });
 
-    // ポップアップ制御
     function openCalc() { document.getElementById('calc-modal').style.display = 'flex'; }
     function closeCalc() { document.getElementById('calc-modal').style.display = 'none'; }
     function closeCalcOnBg(e) { if(e.target === document.getElementById('calc-modal')) closeCalc(); }
 
-    // ★ 諸元計算のメインロジック（公式を適用）
+    // ★ 諸元計算ロジック
     function doCalc() {
       const otAzi = parseFloat(document.getElementById('calc-ot-azi').value);
       const OA = parseFloat(document.getElementById('calc-ot-dist').value); // 観目距離
       const gtAzi = parseFloat(document.getElementById('calc-gt-azi').value);
       const MA = parseFloat(document.getElementById('calc-gt-dist').value); // 砲目距離
       const gunSpace = parseFloat(document.getElementById('calc-gun-space').value);
-      const PER = parseFloat(document.getElementById('calc-per').value);    // QPER用に追加
+      const PER = parseFloat(document.getElementById('calc-per').value);
 
       // 1. 観砲頂角 (T)
       let T = NaN;
       if (!isNaN(otAzi) && !isNaN(gtAzi)) {
         T = Math.abs(otAzi - gtAzi);
-        if (T > 3200) T = 6400 - T; // 鋭角側に補正
+        if (T > 3200) T = 6400 - T;
         document.getElementById('res-t').textContent = T + " ミル";
       } else {
         document.getElementById('res-t').textContent = "-";
       }
 
-      // 2. 観測率 (Q) = 100 * sin(T) / (OA / 1000)
-      let Q = NaN;
-      if (!isNaN(T) && !isNaN(OA) && OA !== 0) {
-        // Javascriptのsin計算のため、ミル(6400)をラジアン(2π)に変換して処理
-        const T_rad = T * Math.PI / 3200;
-        Q = (100 * Math.sin(T_rad)) / (OA / 1000);
-        document.getElementById('res-q').textContent = Q.toFixed(2);
-      } else {
-        document.getElementById('res-q').textContent = "-";
-      }
-
-      // 3. QPER = (PER / 100) * Q
-      if (!isNaN(PER) && !isNaN(Q)) {
-        const qper = (PER / 100) * Q;
-        document.getElementById('res-qper').textContent = qper.toFixed(2);
-      } else {
-        document.getElementById('res-qper').textContent = "-";
-      }
-
-      // 4. 略近 = (T / 100) * (MA / OA)
+      // 2. 略近 = (T / 100) * (MA / OA)
+      let ryakukin = NaN;
       if (!isNaN(T) && !isNaN(MA) && !isNaN(OA) && OA !== 0) {
-        const ryakukin = (T / 100) * (MA / OA);
+        ryakukin = (T / 100) * (MA / OA);
         document.getElementById('res-ryakukin').textContent = ryakukin.toFixed(2);
       } else {
         document.getElementById('res-ryakukin').textContent = "-";
       }
 
-      // 5. 方向比 (P) = 観目距離 / 砲目距離 (E/E' の幾何学展開)
+      // 3. 略近QPER = (PER / 100) * 略近
+      if (!isNaN(PER) && !isNaN(ryakukin)) {
+        const ryakukinQper = (PER / 100) * ryakukin;
+        document.getElementById('res-qper').textContent = ryakukinQper.toFixed(2);
+      } else {
+        document.getElementById('res-qper').textContent = "-";
+      }
+
+      // 4. 方向比 (P) = 観目距離 / 砲目距離
       if (!isNaN(OA) && !isNaN(MA) && MA !== 0) {
         const p = OA / MA;
         document.getElementById('res-dir-ratio').textContent = p.toFixed(2);
@@ -394,7 +379,7 @@
         document.getElementById('res-dir-ratio').textContent = "-";
       }
 
-      // 6. 砲間隔ミル数 = 砲間隔 / (砲目距離 / 1000)
+      // 5. 砲間隔ミル数 = 砲間隔 / (砲目距離 / 1000)
       if (!isNaN(gunSpace) && !isNaN(MA) && MA !== 0) {
         const gunMils = gunSpace / (MA / 1000);
         document.getElementById('res-gun-mils').textContent = gunMils.toFixed(1) + " ミル";
@@ -403,7 +388,7 @@
       }
     }
 
-    // --- 以下、タイマーの制御ロジック ---
+    // --- タイマー制御ロジック ---
     function populateSelect(selectId, min, max, defaultVal, suffix = "") {
       const select = document.getElementById(selectId);
       if (!select) return;
