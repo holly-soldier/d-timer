@@ -6,7 +6,7 @@
   <title>弾着タイマー</title>
   <link rel="manifest" href="./manifest.json?v=2">
   <style>
-    /* 🎨 カラー定義（一括管理） */
+    /* 🎨 カラー定義 */
     :root {
       --bg-color: #f4f4f9;
       --text-color: #333;
@@ -49,7 +49,6 @@
       }
     }
 
-    /* 📱 全体の設定 */
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0; padding: 0;
@@ -63,7 +62,19 @@
     #setup-section {
       height: 100%; overflow-y: auto; padding: 20px; box-sizing: border-box;
     }
-    h1 { font-size: 24px; text-align: center; margin-top: 0; }
+    
+    .header-container {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+    }
+    .header-container h1 { margin: 0; font-size: 20px; text-align: left; }
+    
+    .calc-btn {
+      background-color: #ff9800; color: white; border: none; padding: 8px 12px;
+      font-size: 14px; font-weight: bold; border-radius: 5px; cursor: pointer; width: auto;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .calc-btn:active { background-color: #e68a00; }
+
     .card {
       background-color: var(--card-bg); padding: 20px; border-radius: 10px;
       box-shadow: 0 4px 6px var(--card-shadow); margin-bottom: 20px;
@@ -80,9 +91,7 @@
     button:active { background: #004494; }
     #generate-btn { margin-top: 25px; padding: 15px; font-size: 18px; }
     
-    .squad-config-group {
-      margin-top: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--input-border);
-    }
+    .squad-config-group { margin-top: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--input-border); }
     .squad-config-group:last-child { border-bottom: none; padding-bottom: 0; }
     
     #squad-configs { margin-top: 15px; padding-left: 10px; border-left: 3px solid #0056b3; }
@@ -92,18 +101,10 @@
       margin-top: 20px; margin-bottom: 5px; font-weight: bold;
       padding: 10px 0; border-top: 1px solid var(--input-border); border-bottom: 1px solid var(--input-border);
     }
-    .switch {
-      position: relative; display: inline-block; width: 50px; height: 28px;
-    }
+    .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc; transition: .4s; border-radius: 34px;
-    }
-    .slider:before {
-      position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px;
-      background-color: white; transition: .4s; border-radius: 50%;
-    }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
     input:checked + .slider { background-color: #4CAF50; }
     input:checked + .slider:before { transform: translateX(22px); }
     
@@ -116,20 +117,18 @@
 
     #global-timer-container {
       background-color: var(--card-bg); margin: 10px 10px 0 10px; padding: 12px;
-      border-radius: 8px; box-shadow: 0 2px 4px var(--card-shadow); text-align: center;
+      border-radius: 8px; box-shadow: 0 2px 4px var(--card-shadow);
       border-left: 5px solid #0056b3; flex-shrink: 0;
     }
-    .global-time-text {
-      font-size: 22px; font-weight: bold;
-    }
+    .global-time-row { display: flex; justify-content: space-between; align-items: center; }
+    .global-time-text { font-size: 20px; font-weight: bold; text-align: left; }
     .timer-hint {
       font-size: 12px; font-weight: normal; color: var(--hint-color);
       margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--hint-border);
     }
 
     #squads-wrapper {
-      flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 10px;
-      overflow: hidden;
+      flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow: hidden;
     }
     
     .squad-container {
@@ -143,13 +142,8 @@
       background-color: var(--squad-title-bg); flex-shrink: 0; z-index: 10;
     }
     
-    .squad-scroll-area {
-      flex: 1; overflow-y: auto; padding: 10px; scroll-behavior: smooth;
-    }
-    
-    .timer-grid {
-      display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; height: max-content; 
-    }
+    .squad-scroll-area { flex: 1; overflow-y: auto; padding: 10px; scroll-behavior: smooth; }
+    .timer-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; height: max-content; }
     
     .timer {
       position: relative; display: flex; align-items: center; justify-content: center;
@@ -159,30 +153,17 @@
     }
     
     .timer::before {
-      content: attr(data-num); position: absolute;
-      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      content: attr(data-num); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
       font-size: min(13vw, 55px); line-height: 1; font-weight: 900; 
       color: var(--timer-watermark); z-index: 1;
     }
     
-    .timer span {
-      position: relative; z-index: 2; font-size: 18px; font-weight: bold;
-      text-shadow: var(--timer-text-shadow);
-    }
+    .timer span { position: relative; z-index: 2; font-size: 18px; font-weight: bold; text-shadow: var(--timer-text-shadow); }
     
-    .timer.running { 
-      background-color: var(--timer-running-bg); border: 1px solid var(--timer-running-border); color: var(--timer-running-text); 
-    }
-    
-    .timer.flashing { 
-      animation: blink 0.5s infinite alternate; background-color: #f44336; color: white; border-color: #f44336; 
-    }
-    .timer.finished { 
-      background-color: #d32f2f; color: white; border-color: #d32f2f; 
-    }
-    .timer.finished span, .timer.flashing span {
-      text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.6);
-    }
+    .timer.running { background-color: var(--timer-running-bg); border: 1px solid var(--timer-running-border); color: var(--timer-running-text); }
+    .timer.flashing { animation: blink 0.5s infinite alternate; background-color: #f44336; color: white; border-color: #f44336; }
+    .timer.finished { background-color: #d32f2f; color: white; border-color: #d32f2f; }
+    .timer.finished span, .timer.flashing span { text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.6); }
     .timer.finished::before { color: rgba(255,255,255,0.4); } 
     
     @keyframes blink {
@@ -190,17 +171,46 @@
       to { background-color: #ffcdd2; color: #d32f2f; }
     }
     
-    #reset-btn-container { 
-      padding: 10px; background-color: var(--btn-reset-container-bg); 
-      border-top: 1px solid var(--btn-reset-border); flex-shrink: 0; 
-    }
+    #reset-btn-container { padding: 10px; background-color: var(--btn-reset-container-bg); border-top: 1px solid var(--btn-reset-border); flex-shrink: 0; }
     #reset-btn { background: #555; padding: 12px; }
+
+    /* ★ 諸元計算ポップアップ用CSS */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background-color: var(--card-bg); width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto;
+      border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      position: relative; color: var(--text-color);
+    }
+    .modal-close {
+      position: absolute; top: 15px; right: 15px; background: transparent; border: none;
+      font-size: 24px; color: var(--text-color); cursor: pointer; padding: 0; width: auto; line-height: 1;
+    }
+    .modal-title { margin-top: 0; font-size: 18px; border-bottom: 2px solid #ff9800; padding-bottom: 8px; margin-bottom: 15px; }
+    
+    .calc-input-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .calc-input-group label { margin: 0; font-size: 14px; font-weight: normal; }
+    .calc-input-group input { 
+      width: 40%; padding: 8px; font-size: 14px; border: 1px solid var(--input-border); 
+      border-radius: 5px; background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box;
+    }
+    
+    .calc-results { background-color: var(--bg-color); padding: 15px; border-radius: 8px; margin-top: 15px; }
+    .calc-res-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold; font-size: 15px; }
+    .calc-res-row:last-child { margin-bottom: 0; }
+    .calc-res-val { color: #ff9800; }
   </style>
 </head>
 <body>
 
   <div id="setup-section">
-    <h1>💣 弾着タイマー設定</h1>
+    <div class="header-container">
+      <h1>💣 弾着タイマー設定</h1>
+      <button class="calc-btn" onclick="openCalc()">📊 諸元計算</button>
+    </div>
+    
     <div class="card">
       <div id="default-time-container">
         <label>一括セットする秒数</label>
@@ -226,7 +236,10 @@
 
   <div id="timer-section">
     <div id="global-timer-container">
-      <div class="global-time-text">⏱️ 経過時間 <span id="global-timer-display">00:00</span></div>
+      <div class="global-time-row">
+        <div class="global-time-text">⏱️ 経過 <span id="global-timer-display">00:00</span></div>
+        <button class="calc-btn" onclick="openCalc()">📊 諸元計算</button>
+      </div>
       <div class="timer-hint">💡 作動中のタイマーは<b>2回連続タップ</b>で解除（リセット）できます</div>
     </div>
     
@@ -234,6 +247,65 @@
     
     <div id="reset-btn-container">
       <button id="reset-btn" onclick="resetApp()">設定に戻る</button>
+    </div>
+  </div>
+
+  <div id="calc-modal" class="modal-overlay" onclick="closeCalcOnBg(event)">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeCalc()">×</button>
+      <h2 class="modal-title">📊 諸元計算</h2>
+      
+      <div class="calc-input-group">
+        <label>観目方位角 (ミル)</label>
+        <input type="number" step="any" id="calc-ot-azi" oninput="doCalc()">
+      </div>
+      <div class="calc-input-group">
+        <label>観目距離 [OA] (m)</label>
+        <input type="number" step="any" id="calc-ot-dist" oninput="doCalc()">
+      </div>
+      <div class="calc-input-group">
+        <label>砲目方位角 (ミル)</label>
+        <input type="number" step="any" id="calc-gt-azi" oninput="doCalc()">
+      </div>
+      <div class="calc-input-group">
+        <label>砲目距離 [MA] (m)</label>
+        <input type="number" step="any" id="calc-gt-dist" oninput="doCalc()">
+      </div>
+      <div class="calc-input-group">
+        <label>砲間隔 (m)</label>
+        <input type="number" step="any" id="calc-gun-space" oninput="doCalc()">
+      </div>
+      <div class="calc-input-group">
+        <label>PER [射距離公算誤差] (m)</label>
+        <input type="number" step="any" id="calc-per" oninput="doCalc()">
+      </div>
+
+      <div class="calc-results">
+        <div class="calc-res-row">
+          <span>観砲頂角 (T):</span>
+          <span id="res-t" class="calc-res-val">-</span>
+        </div>
+        <div class="calc-res-row">
+          <span>観測率 (Q):</span>
+          <span id="res-q" class="calc-res-val">-</span>
+        </div>
+        <div class="calc-res-row">
+          <span>QPER:</span>
+          <span id="res-qper" class="calc-res-val">-</span>
+        </div>
+        <div class="calc-res-row">
+          <span>略近:</span>
+          <span id="res-ryakukin" class="calc-res-val">-</span>
+        </div>
+        <div class="calc-res-row">
+          <span>方向比 (P):</span>
+          <span id="res-dir-ratio" class="calc-res-val">-</span>
+        </div>
+        <div class="calc-res-row">
+          <span>砲間隔ミル数:</span>
+          <span id="res-gun-mils" class="calc-res-val">-</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -248,28 +320,90 @@
 
     async function requestWakeLock() {
       if ('wakeLock' in navigator) {
-        try {
-          wakeLock = await navigator.wakeLock.request('screen');
-        } catch (err) {
-          console.log('Wake Lock error:', err);
-        }
+        try { wakeLock = await navigator.wakeLock.request('screen'); } 
+        catch (err) {}
       }
     }
 
     function releaseWakeLock() {
       if (wakeLock !== null) {
-        wakeLock.release().then(() => {
-          wakeLock = null;
-        });
+        wakeLock.release().then(() => { wakeLock = null; });
       }
     }
 
     document.addEventListener('visibilitychange', async () => {
-      if (wakeLock !== null && document.visibilityState === 'visible') {
-        requestWakeLock();
-      }
+      if (wakeLock !== null && document.visibilityState === 'visible') { requestWakeLock(); }
     });
 
+    // ポップアップ制御
+    function openCalc() { document.getElementById('calc-modal').style.display = 'flex'; }
+    function closeCalc() { document.getElementById('calc-modal').style.display = 'none'; }
+    function closeCalcOnBg(e) { if(e.target === document.getElementById('calc-modal')) closeCalc(); }
+
+    // ★ 諸元計算のメインロジック（公式を適用）
+    function doCalc() {
+      const otAzi = parseFloat(document.getElementById('calc-ot-azi').value);
+      const OA = parseFloat(document.getElementById('calc-ot-dist').value); // 観目距離
+      const gtAzi = parseFloat(document.getElementById('calc-gt-azi').value);
+      const MA = parseFloat(document.getElementById('calc-gt-dist').value); // 砲目距離
+      const gunSpace = parseFloat(document.getElementById('calc-gun-space').value);
+      const PER = parseFloat(document.getElementById('calc-per').value);    // QPER用に追加
+
+      // 1. 観砲頂角 (T)
+      let T = NaN;
+      if (!isNaN(otAzi) && !isNaN(gtAzi)) {
+        T = Math.abs(otAzi - gtAzi);
+        if (T > 3200) T = 6400 - T; // 鋭角側に補正
+        document.getElementById('res-t').textContent = T + " ミル";
+      } else {
+        document.getElementById('res-t').textContent = "-";
+      }
+
+      // 2. 観測率 (Q) = 100 * sin(T) / (OA / 1000)
+      let Q = NaN;
+      if (!isNaN(T) && !isNaN(OA) && OA !== 0) {
+        // Javascriptのsin計算のため、ミル(6400)をラジアン(2π)に変換して処理
+        const T_rad = T * Math.PI / 3200;
+        Q = (100 * Math.sin(T_rad)) / (OA / 1000);
+        document.getElementById('res-q').textContent = Q.toFixed(2);
+      } else {
+        document.getElementById('res-q').textContent = "-";
+      }
+
+      // 3. QPER = (PER / 100) * Q
+      if (!isNaN(PER) && !isNaN(Q)) {
+        const qper = (PER / 100) * Q;
+        document.getElementById('res-qper').textContent = qper.toFixed(2);
+      } else {
+        document.getElementById('res-qper').textContent = "-";
+      }
+
+      // 4. 略近 = (T / 100) * (MA / OA)
+      if (!isNaN(T) && !isNaN(MA) && !isNaN(OA) && OA !== 0) {
+        const ryakukin = (T / 100) * (MA / OA);
+        document.getElementById('res-ryakukin').textContent = ryakukin.toFixed(2);
+      } else {
+        document.getElementById('res-ryakukin').textContent = "-";
+      }
+
+      // 5. 方向比 (P) = 観目距離 / 砲目距離 (E/E' の幾何学展開)
+      if (!isNaN(OA) && !isNaN(MA) && MA !== 0) {
+        const p = OA / MA;
+        document.getElementById('res-dir-ratio').textContent = p.toFixed(2);
+      } else {
+        document.getElementById('res-dir-ratio').textContent = "-";
+      }
+
+      // 6. 砲間隔ミル数 = 砲間隔 / (砲目距離 / 1000)
+      if (!isNaN(gunSpace) && !isNaN(MA) && MA !== 0) {
+        const gunMils = gunSpace / (MA / 1000);
+        document.getElementById('res-gun-mils').textContent = gunMils.toFixed(1) + " ミル";
+      } else {
+        document.getElementById('res-gun-mils').textContent = "-";
+      }
+    }
+
+    // --- 以下、タイマーの制御ロジック ---
     function populateSelect(selectId, min, max, defaultVal, suffix = "") {
       const select = document.getElementById(selectId);
       if (!select) return;
