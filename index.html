@@ -230,7 +230,7 @@
     function closeCalc() { document.getElementById('calc-modal').style.display = 'none'; }
     function closeCalcOnBg(e) { if(e.target === document.getElementById('calc-modal')) closeCalc(); }
 
-    // ★ 諸元計算ロジック（改修版）
+    // ★ 諸元計算ロジック（修正版）
     function doCalc() {
       const otAzi = parseFloat(document.getElementById('calc-ot-azi').value);
       const OA = parseFloat(document.getElementById('calc-ot-dist').value); // 観目距離
@@ -249,7 +249,7 @@
       // ラジアン変換 (sin, cos 計算用)
       const T_rad = (!isNaN(T)) ? (T * Math.PI / 3200) : NaN;
 
-      // 1. QPER = (PER / 100) * Q 
+      // 1. 厳密な QPER = (PER / 100) * Q 
       // Q = 100 * sin(T) / (OA / 1000)
       if (!isNaN(T_rad) && !isNaN(OA) && OA !== 0 && !isNaN(PER)) {
         const Q = (100 * Math.sin(T_rad)) / (OA / 1000);
@@ -259,10 +259,10 @@
         document.getElementById('res-qper').textContent = "-";
       }
 
-      // 2. 略近QPER = (T / 100) * (MA / OA) * (PER / 100)
-      if (!isNaN(T) && !isNaN(MA) && !isNaN(OA) && OA !== 0 && !isNaN(PER)) {
-        const ryakukinQ = (T / 100) * (MA / OA);
-        const ryakukinQper = (PER / 100) * ryakukinQ;
+      // 2. 略近QPER = (T / 100) * (MA / OA)
+      // ※ PER ≒ MA/100 という前提が組み込まれた実戦的略算法
+      if (!isNaN(T) && !isNaN(MA) && !isNaN(OA) && OA !== 0) {
+        const ryakukinQper = (T / 100) * (MA / OA);
         document.getElementById('res-ryakukin-qper').textContent = ryakukinQper.toFixed(2);
       } else {
         document.getElementById('res-ryakukin-qper').textContent = "-";
@@ -272,11 +272,9 @@
       if (!isNaN(OA) && !isNaN(MA) && MA !== 0 && !isNaN(T_rad)) {
         const cosT = Math.cos(T_rad);
         if (Math.abs(cosT) < 0.0001) {
-          // Tが1600ミル(90度)の時はゼロ割りになるためガード
           document.getElementById('res-dir-ratio').textContent = "計算不可";
         } else {
           const p = OA / (MA * cosT);
-          // 比率なので絶対値表示
           document.getElementById('res-dir-ratio').textContent = Math.abs(p).toFixed(2);
         }
       } else {
