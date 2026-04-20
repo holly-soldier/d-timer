@@ -230,10 +230,10 @@
     function closeCalc() { document.getElementById('calc-modal').style.display = 'none'; }
     function closeCalcOnBg(e) { if(e.target === document.getElementById('calc-modal')) closeCalc(); }
 
-    // ★ 諸元計算ロジック（修正版）
+    // ★ 諸元計算ロジック
     function doCalc() {
       const otAzi = parseFloat(document.getElementById('calc-ot-azi').value);
-      const OA = parseFloat(document.getElementById('calc-ot-dist').value); // 観目距離
+      const OA = parseFloat(document.getElementById('calc-ot-dist').value); // 観目距離 (OT)
       const gtAzi = parseFloat(document.getElementById('calc-gt-azi').value);
       const MA = parseFloat(document.getElementById('calc-gt-dist').value); // 砲目距離
       const gunSpace = parseFloat(document.getElementById('calc-gun-space').value);
@@ -249,8 +249,7 @@
       // ラジアン変換 (sin, cos 計算用)
       const T_rad = (!isNaN(T)) ? (T * Math.PI / 3200) : NaN;
 
-      // 1. 厳密な QPER = (PER / 100) * Q 
-      // Q = 100 * sin(T) / (OA / 1000)
+      // 1. 厳密な QPER
       if (!isNaN(T_rad) && !isNaN(OA) && OA !== 0 && !isNaN(PER)) {
         const Q = (100 * Math.sin(T_rad)) / (OA / 1000);
         const qper = (PER / 100) * Q;
@@ -259,8 +258,7 @@
         document.getElementById('res-qper').textContent = "-";
       }
 
-      // 2. 略近QPER = (T / 100) * (MA / OA)
-      // ※ PER ≒ MA/100 という前提が組み込まれた実戦的略算法
+      // 2. 略近QPER
       if (!isNaN(T) && !isNaN(MA) && !isNaN(OA) && OA !== 0) {
         const ryakukinQper = (T / 100) * (MA / OA);
         document.getElementById('res-ryakukin-qper').textContent = ryakukinQper.toFixed(2);
@@ -268,7 +266,7 @@
         document.getElementById('res-ryakukin-qper').textContent = "-";
       }
 
-      // 3. 方向比 = OA / (MA * cos(T))
+      // 3. 方向比
       if (!isNaN(OA) && !isNaN(MA) && MA !== 0 && !isNaN(T_rad)) {
         const cosT = Math.cos(T_rad);
         if (Math.abs(cosT) < 0.0001) {
@@ -281,9 +279,10 @@
         document.getElementById('res-dir-ratio').textContent = "-";
       }
 
-      // 4. 砲間隔ミル数 = 砲間隔 / (MA / 1000)
-      if (!isNaN(gunSpace) && !isNaN(MA) && MA !== 0) {
-        const gunMils = gunSpace / (MA / 1000);
+      // 4. 砲間隔ミル数（★新しい計算式に更新）
+      // 砲間隔(m) / OT(km) * |1600 - 観砲頂角| / 1600
+      if (!isNaN(gunSpace) && !isNaN(OA) && OA !== 0 && !isNaN(T)) {
+        const gunMils = (gunSpace / (OA / 1000)) * (Math.abs(1600 - T) / 1600);
         document.getElementById('res-gun-mils').textContent = gunMils.toFixed(1);
       } else {
         document.getElementById('res-gun-mils').textContent = "-";
