@@ -100,6 +100,9 @@
     .calc-input-group label { margin: 0; font-size: 16px; font-weight: bold; } 
     .calc-input-group input { width: 45%; padding: 10px; font-size: 16px; border: 1px solid var(--input-border); border-radius: 5px; background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box; }
     
+    /* 区分線（セパレーター） */
+    .calc-separator { border-top: 1px dashed var(--input-border); margin: 15px 0; }
+
     .calc-results { background-color: var(--bg-color); padding: 18px; border-radius: 8px; margin-top: 20px; }
     .calc-res-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; font-size: 18px; } 
     .calc-res-row:last-child { margin-bottom: 0; }
@@ -183,6 +186,17 @@
         <input type="number" step="any" id="calc-per" oninput="doCalc()">
       </div>
 
+      <div class="calc-separator"></div>
+
+      <div class="calc-input-group">
+        <label>長軸の方位角</label>
+        <input type="number" step="any" id="calc-long-axis-azi" oninput="doCalc()">
+      </div>
+      <div class="calc-input-group">
+        <label>弾着幅</label>
+        <input type="number" step="any" id="calc-impact-width" oninput="doCalc()">
+      </div>
+
       <div class="calc-results">
         <div class="calc-res-row">
           <span>QPER:</span>
@@ -199,6 +213,10 @@
         <div class="calc-res-row">
           <span>砲間隔ミル数:</span>
           <span id="res-gun-mils" class="calc-res-val">-</span>
+        </div>
+        <div class="calc-res-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--input-border);">
+          <span>長軸見え方:</span>
+          <span id="res-long-axis-mils" class="calc-res-val">-</span>
         </div>
       </div>
     </div>
@@ -230,14 +248,19 @@
     function closeCalc() { document.getElementById('calc-modal').style.display = 'none'; }
     function closeCalcOnBg(e) { if(e.target === document.getElementById('calc-modal')) closeCalc(); }
 
-    // ★ 諸元計算ロジック
+    // ★ 諸元計算ロジック（修正版 + 長軸計算追加）
     function doCalc() {
+      // 既存の入力項目
       const otAzi = parseFloat(document.getElementById('calc-ot-azi').value);
-      const OA = parseFloat(document.getElementById('calc-ot-dist').value); // 観目距離 (OT)
+      const OA = parseFloat(document.getElementById('calc-ot-dist').value); // 観目距離
       const gtAzi = parseFloat(document.getElementById('calc-gt-azi').value);
       const MA = parseFloat(document.getElementById('calc-gt-dist').value); // 砲目距離
       const gunSpace = parseFloat(document.getElementById('calc-gun-space').value);
       const PER = parseFloat(document.getElementById('calc-per').value);
+
+      // 追加の入力項目（長軸射撃用）
+      const longAzi = parseFloat(document.getElementById('calc-long-axis-azi').value);
+      const impactWidth = parseFloat(document.getElementById('calc-impact-width').value);
 
       // 観砲頂角 (T) の計算
       let T = NaN;
@@ -246,10 +269,9 @@
         if (T > 3200) T = 6400 - T;
       }
       
-      // ラジアン変換 (sin, cos 計算用)
       const T_rad = (!isNaN(T)) ? (T * Math.PI / 3200) : NaN;
 
-      // 1. 厳密な QPER
+      // 1. QPER
       if (!isNaN(T_rad) && !isNaN(OA) && OA !== 0 && !isNaN(PER)) {
         const Q = (100 * Math.sin(T_rad)) / (OA / 1000);
         const qper = (PER / 100) * Q;
@@ -279,13 +301,27 @@
         document.getElementById('res-dir-ratio').textContent = "-";
       }
 
-      // 4. 砲間隔ミル数（★新しい計算式に更新）
-      // 砲間隔(m) / OT(km) * |1600 - 観砲頂角| / 1600
-      if (!isNaN(gunSpace) && !isNaN(OA) && OA !== 0 && !isNaN(T)) {
-        const gunMils = (gunSpace / (OA / 1000)) * (Math.abs(1600 - T) / 1600);
+      // 4. 砲間隔ミル数（★修正：数学的厳密式 cos(T)版）
+      // m = (W * cos(T * π/3200)) / OT
+      if (!isNaN(gunSpace) && !isNaN(OA) && OA !== 0 && !isNaN(T_rad)) {
+        // 絶対値を取ってマイナスになるのを防ぐ
+        const gunMils = (gunSpace * Math.abs(Math.cos(T_rad))) / (OA / 1000);
         document.getElementById('res-gun-mils').textContent = gunMils.toFixed(1);
       } else {
         document.getElementById('res-gun-mils').textContent = "-";
+      }
+
+      // 5. 長軸見え方ミル数（★新規追加）
+      // m = (L * sin(θ * π/3200)) / OT
+      if (!isNaN(longAzi) && !isNaN(impactWidth) && !isNaN(otAzi) && !isNaN(OA) && OA !== 0) {
+        // 交角(θ)の計算
+        let theta = Math.abs(longAzi - otAzi);
+        const theta_rad = theta * Math.PI / 3200;
+        
+        const longMils = (impactWidth * Math.abs(Math.sin(theta_rad))) / (OA / 1000);
+        document.getElementById('res-long-axis-mils').textContent = longMils.toFixed(1);
+      } else {
+        document.getElementById('res-long-axis-mils').textContent = "-";
       }
     }
 
